@@ -15,7 +15,7 @@ import {
   ArrowUpRight,
   Database
 } from 'lucide-react';
-import { saveAppointmentBooking, SUPABASE_PROJECT_ID } from '../lib/supabase';
+import { SUPABASE_PROJECT_ID } from '../lib/supabase';
 import { submitContactMessage } from '../services/messages';
 
 interface ContactProps {
@@ -118,7 +118,7 @@ export const Contact: React.FC<ContactProps> = ({ initialProjectType }) => {
     setStatus('submitting');
 
     try {
-      // 1. Submit to Supabase contact_messages table (Requirements 5, 6, 19)
+      // Submit to Supabase database via messages service
       const contactRes = await submitContactMessage({
         name: formData.name,
         email: formData.email,
@@ -128,21 +128,8 @@ export const Contact: React.FC<ContactProps> = ({ initialProjectType }) => {
         message: formData.message,
       });
 
-      // 2. Also save to appointments table for cross-compatibility
-      saveAppointmentBooking({
-        name: formData.name,
-        email: formData.email,
-        service: formData.projectType,
-        budget: formData.budget,
-        timeline: formData.timeline,
-        message: formData.message,
-        status: 'pending'
-      }).catch(() => {
-        // Non-blocking fallback
-      });
-
       if (contactRes.success) {
-        setSupabaseSavedTable('contact_messages');
+        setSupabaseSavedTable('Supabase Database');
       } else {
         setSupabaseSavedTable(null);
       }

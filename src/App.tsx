@@ -18,7 +18,6 @@ import { Contact } from './components/Contact';
 import { Footer } from './components/Footer';
 import { ResumeModal } from './components/ResumeModal';
 import { FloatingWhatsApp } from './components/FloatingWhatsApp';
-import { AppointmentModal } from './components/AppointmentModal';
 import { AdminApp } from './components/admin/AdminApp';
 import { ServiceItem } from './data/services';
 
@@ -26,9 +25,6 @@ const AppContent: React.FC = () => {
   const { path } = useRouter();
 
   const [isResumeOpen, setIsResumeOpen] = useState(false);
-  const [isAppointmentModalOpen, setIsAppointmentModalOpen] = useState(false);
-  const [appointmentService, setAppointmentService] = useState('Haircut & Styling');
-  const [appointmentBarber, setAppointmentBarber] = useState('Master Barber (Alex)');
   const [selectedContactProjectType, setSelectedContactProjectType] = useState<string | undefined>(undefined);
 
   // If path starts with /admin, render the secure Admin Portal
@@ -41,12 +37,6 @@ const AppContent: React.FC = () => {
     if (el) {
       el.scrollIntoView({ behavior: 'smooth' });
     }
-  };
-
-  const handleOpenAppointmentModal = (service?: string, barber?: string) => {
-    if (service) setAppointmentService(service);
-    if (barber) setAppointmentBarber(barber);
-    setIsAppointmentModalOpen(true);
   };
 
   const handleSelectService = (service: ServiceItem) => {
@@ -70,7 +60,6 @@ const AppContent: React.FC = () => {
         <Hero 
           onOpenResume={() => setIsResumeOpen(true)}
           onOpenContact={handleOpenContact}
-          onOpenAppointmentModal={() => handleOpenAppointmentModal()}
         />
 
         <About 
@@ -84,7 +73,6 @@ const AppContent: React.FC = () => {
 
         <Projects 
           onDiscussProject={handleDiscussProject}
-          onOpenAppointmentModal={handleOpenAppointmentModal}
         />
 
         <Experience />
@@ -101,14 +89,6 @@ const AppContent: React.FC = () => {
       <ResumeModal 
         isOpen={isResumeOpen}
         onClose={() => setIsResumeOpen(false)}
-      />
-
-      {/* Interactive Supabase Appointment Booking Modal */}
-      <AppointmentModal
-        isOpen={isAppointmentModalOpen}
-        onClose={() => setIsAppointmentModalOpen(false)}
-        defaultService={appointmentService}
-        defaultBarber={appointmentBarber}
       />
 
       {/* Floating WhatsApp Quick Action */}

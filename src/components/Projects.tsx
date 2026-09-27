@@ -12,18 +12,15 @@ import {
   Github, 
   Sparkles, 
   Layers,
-  MessageSquare,
-  Calendar
+  MessageSquare
 } from 'lucide-react';
 
 interface ProjectsProps {
   onDiscussProject: (projectTitle: string) => void;
-  onOpenAppointmentModal?: (service?: string, barber?: string) => void;
 }
 
 export const Projects: React.FC<ProjectsProps> = ({ 
-  onDiscussProject,
-  onOpenAppointmentModal 
+  onDiscussProject
 }) => {
   const [selectedFilter, setSelectedFilter] = useState<FilterCategory>('All');
   const [activeModalProject, setActiveModalProject] = useState<ProjectItem | null>(null);
@@ -67,7 +64,7 @@ export const Projects: React.FC<ProjectsProps> = ({
               Selected Projects
             </h2>
             <p className="mt-4 text-neutral-300 text-base sm:text-lg leading-relaxed">
-              Showcasing business websites, full-stack applications, appointment platforms, and backend REST APIs.
+              Showcasing business websites, full-stack applications, interactive web tools, and backend REST APIs.
               Click any project to explore its architecture and technical breakdown.
             </p>
           </div>
@@ -180,17 +177,6 @@ export const Projects: React.FC<ProjectsProps> = ({
                         <Layers className="w-4 h-4" />
                         <span>View Case Study</span>
                       </button>
-
-                      {project.id === 'us-barber' && onOpenAppointmentModal && (
-                        <button
-                          type="button"
-                          onClick={() => onOpenAppointmentModal('Haircut & Styling', 'U.S. Barber')}
-                          className="inline-flex items-center gap-2 px-5 py-3 text-xs sm:text-sm font-semibold text-white bg-emerald-600 hover:bg-emerald-500 rounded-xl transition-colors shadow-sm cursor-pointer"
-                        >
-                          <Calendar className="w-4 h-4" />
-                          <span>Book Appointment (Supabase)</span>
-                        </button>
-                      )}
 
                       {project.liveUrl && (
                         <a
@@ -339,7 +325,6 @@ export const Projects: React.FC<ProjectsProps> = ({
           project={activeModalProject}
           onClose={() => setActiveModalProject(null)}
           onDiscussProject={onDiscussProject}
-          onOpenAppointmentModal={onOpenAppointmentModal}
         />
       )}
     </section>

@@ -9,36 +9,30 @@ import {
   Copy, 
   Check, 
   Terminal, 
-  Layers,
-  Calendar
+  Layers
 } from 'lucide-react';
 
 interface HeroProps {
   onOpenResume: () => void;
   onOpenContact: () => void;
-  onOpenAppointmentModal?: () => void;
 }
 
-export const Hero: React.FC<HeroProps> = ({ onOpenResume, onOpenContact, onOpenAppointmentModal }) => {
+export const Hero: React.FC<HeroProps> = ({ onOpenResume, onOpenContact }) => {
   const [activeCodeTab, setActiveCodeTab] = useState<'api' | 'architecture'>('api');
   const [copiedSnippet, setCopiedSnippet] = useState(false);
 
-  const apiSnippet = `@app.post("/api/v1/appointments/book", response_model=BookingResult)
-async def book_service_slot(
-    request: AppointmentBookingRequest,
+  const apiSnippet = `@app.post("/api/v1/projects/inquire", response_model=InquiryResult)
+async def submit_project_inquiry(
+    request: ProjectInquiryRequest,
     db: AsyncSession = Depends(get_database_session),
-    auth_user: User = Depends(get_authenticated_user)
-) -> BookingResult:
-    """Atomic slot validation and instant booking confirmation."""
+    rate_limiter: RateLimiter = Depends(get_rate_limiter)
+) -> InquiryResult:
+    """Validates and processes incoming client project inquiries asynchronously."""
     async with db.begin():
-        await verify_barber_availability(
-            db, 
-            barber_id=request.barber_id, 
-            slot=request.start_time
-        )
-        booking = await create_appointment_record(db, request, user_id=auth_user.id)
-        await dispatch_booking_notification.delay(booking.id)
-    return BookingResult(success=True, booking_id=booking.id, status="confirmed")`;
+        await rate_limiter.check_rate_limit(request.email)
+        record = await create_inquiry_record(db, request)
+        await dispatch_notification_worker.delay(record.id)
+    return InquiryResult(success=True, inquiry_id=record.id, status="received")`;
 
   const architectureSnippet = `+-------------------------------------------------------+
 | Client Viewport: React 19 + TypeScript + Tailwind     |
@@ -124,17 +118,6 @@ async def book_service_slot(
               >
                 <span>Let's Work Together</span>
               </button>
-
-              {onOpenAppointmentModal && (
-                <button
-                  type="button"
-                  onClick={onOpenAppointmentModal}
-                  className="w-full sm:w-auto inline-flex items-center justify-center gap-2 px-5 py-3.5 text-sm font-semibold text-white bg-emerald-700 hover:bg-emerald-600 transition-colors rounded-xl border border-emerald-600/60 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-emerald-400 cursor-pointer"
-                >
-                  <Calendar className="w-4 h-4 text-emerald-300" />
-                  <span>Book Appointment</span>
-                </button>
-              )}
 
               <button
                 type="button"
@@ -256,34 +239,32 @@ async def book_service_slot(
                     <code>
                       <span className="text-emerald-400">@app.post</span>
                       <span className="text-neutral-400">(</span>
-                      <span className="text-amber-300">"/api/v1/appointments/book"</span>
+                      <span className="text-amber-300">"/api/v1/projects/inquire"</span>
                       <span className="text-neutral-400">)</span>
                       {'\n'}
                       <span className="text-cyan-400">async def</span>{' '}
-                      <span className="text-yellow-200">book_service_slot</span>
+                      <span className="text-yellow-200">submit_project_inquiry</span>
                       <span className="text-neutral-400">(</span>
-                      {'\n  '}request: AppointmentBookingRequest,
+                      {'\n  '}request: ProjectInquiryRequest,
                       {'\n  '}db: AsyncSession = Depends(get_database_session),
-                      {'\n  '}auth_user: User = Depends(get_authenticated_user)
+                      {'\n  '}rate_limiter: RateLimiter = Depends(get_rate_limiter)
                       {'\n'}
-                      <span className="text-neutral-400">) -&gt; BookingResult:</span>
+                      <span className="text-neutral-400">) -&gt; InquiryResult:</span>
                       {'\n  '}
-                      <span className="text-neutral-500">"""Atomic slot validation and instant booking."""</span>
+                      <span className="text-neutral-500">"""Validates and processes client project inquiries."""</span>
                       {'\n  '}
                       <span className="text-cyan-400">async with</span> db.begin():
                       {'\n    '}
-                      <span className="text-cyan-400">await</span> verify_barber_availability(
-                      {'\n      '}db, barber_id=request.barber_id, slot=request.start_time
-                      {'\n    '})
-                      {'\n    '}booking = <span className="text-cyan-400">await</span> create_appointment_record(
-                      {'\n      '}db, request, user_id=auth_user.id
+                      <span className="text-cyan-400">await</span> rate_limiter.check_rate_limit(request.email)
+                      {'\n    '}record = <span className="text-cyan-400">await</span> create_inquiry_record(
+                      {'\n      '}db, request
                       {'\n    '})
                       {'\n    '}
-                      <span className="text-cyan-400">await</span> dispatch_booking_notification.delay(booking.id)
+                      <span className="text-cyan-400">await</span> dispatch_notification_worker.delay(record.id)
                       {'\n  '}
-                      <span className="text-cyan-400">return</span> BookingResult(success=
+                      <span className="text-cyan-400">return</span> InquiryResult(success=
                       <span className="text-emerald-400">True</span>, status=
-                      <span className="text-amber-300">"confirmed"</span>)
+                      <span className="text-amber-300">"received"</span>)
                     </code>
                   ) : (
                     <code className="text-neutral-400 text-xs sm:text-[12px] leading-tight">

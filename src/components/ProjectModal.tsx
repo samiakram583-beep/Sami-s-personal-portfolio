@@ -11,22 +11,19 @@ import {
   Sparkles,
   ArrowLeft,
   ArrowRight,
-  Info,
-  Calendar
+  Info
 } from 'lucide-react';
 
 interface ProjectModalProps {
   project: ProjectItem | null;
   onClose: () => void;
   onDiscussProject: (projectTitle: string) => void;
-  onOpenAppointmentModal?: (service?: string, barber?: string) => void;
 }
 
 export const ProjectModal: React.FC<ProjectModalProps> = ({
   project,
   onClose,
   onDiscussProject,
-  onOpenAppointmentModal,
 }) => {
   useEffect(() => {
     const handleKeyDown = (e: KeyboardEvent) => {
@@ -233,20 +230,6 @@ export const ProjectModal: React.FC<ProjectModalProps> = ({
           
           {/* Project Links: Only display Live / Source buttons if actual URLs exist */}
           <div className="flex items-center gap-3">
-            {project.id === 'us-barber' && onOpenAppointmentModal && (
-              <button
-                type="button"
-                onClick={() => {
-                  onClose();
-                  onOpenAppointmentModal('Haircut & Styling', 'U.S. Barber');
-                }}
-                className="inline-flex items-center gap-1.5 px-4 py-2 text-xs font-semibold text-white bg-emerald-600 hover:bg-emerald-500 rounded-lg transition-colors shadow-sm"
-              >
-                <Calendar className="w-3.5 h-3.5" />
-                <span>Book Appointment (Supabase)</span>
-              </button>
-            )}
-
             {project.liveUrl ? (
               <a
                 href={project.liveUrl}
